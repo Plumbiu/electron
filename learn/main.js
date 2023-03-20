@@ -2,11 +2,12 @@ const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
 const mainMenu = require('./mainMenu')
 const path = require('path')
 const createTray = require('./Tray.js')
+const { sandboxed } = require('process')
+const getSource = require('./controller/getSource')
 let contextMenu = Menu.buildFromTemplate([
   { label: 'Item 1' },
   { role: 'editMenu' }
 ])
-
 function handleTitle(event, title) {
   const webContents = event.sender
   const win = BrowserWindow.fromWebContents(webContents)
@@ -20,15 +21,16 @@ async function handleFileOpen() {
 
 const createWindow = () => {
   const win = new BrowserWindow({
-    width: 1000,
+    width: 600,
     height: 800,
-    x: 100,
+    x: 2000,
     y: 100,
     // frame: false,
     backgroundColor: '#bfa',
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      sandbox: false
     }
   })
   createTray(app, win) 
@@ -67,6 +69,7 @@ const createWindow = () => {
     //   .then(result => {
     //     console.log(result)
     //   })
+    getSource(win)
     contextMenu.popup()
   })
   Menu.setApplicationMenu(mainMenu('我的消息来了', (args) => {
